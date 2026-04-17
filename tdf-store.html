@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TDF — The Daily Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --white: #ffffff;
+  --cream: #faf8f5;
+  --warm: #f3ede4;
+  --blush: #e8d5c4;
+  --accent: #c9a98a;
+  --dark: #1e1e1e;
+  --mid: #6b6560;
+  --light: #a89f96;
+  --r: 20px;
+  --rs: 12px;
+}
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--white); color: var(--dark); }
+
+/* ── ANNOUNCEMENT ── */
+.ann-bar {
+  background: var(--dark); color: var(--white);
+  text-align: center; padding: 10px;
+  font-size: 12px; letter-spacing: 2px; font-weight: 300;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 500; letter-spacing: 4px;
+  cursor: pointer; text-decoration: none; color: var(--dark);
+}
+.nav-links { display: flex; gap: 28px; }
+.nav-links button {
+  font-size: 12px; letter-spacing: 1.5px; color: var(--mid);
+  cursor: pointer; font-weight: 400; text-transform: uppercase;
+  background: none; border: none; font-family: 'Noto Sans SC', sans-serif;
+  transition: color .2s; padding: 4px 0; position: relative;
+}
+.nav-links button::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 1.5px; background: var(--dark); transition: width .25s;
+}
+.nav-links button:hover::after, .nav-links button.active::after { width: 100%; }
+.nav-links button:hover, .nav-links button.active { color: var(--dark); }
+.nav-right { display: flex; gap: 18px; align-items: center; }
+
+/* Cart icon — bag style */
+.cart-icon-btn {
+  background: none; border: none; cursor: pointer;
+  position: relative; padding: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cart-svg { display: block; }
+.cart-badge {
+  position: absolute; top: -2px; right: -4px;
+  background: var(--accent); color: white; border-radius: 50%;
+  width: 16px; height: 16px; font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 500; font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--cream); min-height: 80vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; padding: 60px 24px;
+}
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg,#faf8f5 0%,#f0e8df 50%,#faf8f5 100%); }
+.hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .4; }
+.b1 { width: 420px; height: 420px; background: #e8d5c4; top: -110px; right: -110px; }
+.b2 { width: 300px; height: 300px; background: #d4c4b8; bottom: -80px; left: -80px; }
+.hero-content { position: relative; text-align: center; max-width: 600px; animation: fadeUp .8s ease both; }
+.hero-eyebrow { font-size: 11px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(48px,10vw,80px); font-weight: 300; line-height: 1.1; margin-bottom: 20px; }
+.hero-title em { font-style: italic; color: var(--accent); }
+.hero-sub { font-size: 14px; color: var(--mid); line-height: 1.8; margin-bottom: 36px; font-weight: 300; }
+.btn-primary {
+  background: var(--dark); color: white; border: none;
+  padding: 14px 36px; border-radius: 50px; font-size: 13px;
+  letter-spacing: 2px; cursor: pointer; font-family: 'Noto Sans SC',sans-serif;
+  transition: all .25s; font-weight: 400;
+}
+.btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+
+/* ── CATALOG ── */
+.section { padding: 60px 24px; max-width: 1200px; margin: 0 auto; }
+.section-header { margin-bottom: 36px; }
+.section-label { font-size: 10px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+.section-title { font-family: 'Cormorant Garamond',serif; font-size: 32px; font-weight: 400; }
+.filter-tabs { display: flex; gap: 10px; margin-bottom: 32px; flex-wrap: wrap; }
+.filter-tab {
+  padding: 8px 20px; border-radius: 50px;
+  border: 1.5px solid var(--blush); background: transparent;
+  font-size: 12px; letter-spacing: 1px; cursor: pointer;
+  font-family: 'Noto Sans SC',sans-serif; color: var(--mid); transition: all .2s;
+}
+.filter-tab.active,.filter-tab:hover { background: var(--dark); color: white; border-color: var(--dark); }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 24px; }
+.product-card {
+  border-radius: var(--r); overflow: hidden; cursor: pointer;
+  transition: transform .3s, box-shadow .3s;
+  background: var(--white); border: 1px solid rgba(0,0,0,.06);
+}
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+
+/* ── PATTERN PLACEHOLDER ── */
+.product-img-wrap { aspect-ratio: 3/4; overflow: hidden; position: relative; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; display: block; }
+.product-card:hover .product-img-wrap img { transform: scale(1.06); }
+
+/* Pattern canvas — shown when no real photo */
+.pattern-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+/* Tee silhouette pattern */
+.tee-pattern {
+  background: #1a1a1a;
+}
+.tee-pattern svg.bg-pattern {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: .07;
+}
+.tee-silhouette {
+  width: 72%; position: relative; z-index: 2;
+}
+.tee-text {
+  position: absolute; bottom: 28%; left: 50%;
+  transform: translateX(-50%); text-align: center; z-index: 3;
+}
+.tee-text .brand-tee { font-family: 'Cormorant Garamond',serif; font-size: 13px; letter-spacing: 5px; color: rgba(255,255,255,.5); display: block; }
+.tee-text .sub-tee { font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,.25); display: block; margin-top: 3px; }
+
+/* Grid pattern */
+.grid-pattern { background: #f5f0eb; }
+.grid-pattern svg.bg-pattern { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .15; }
+.center-text {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; z-index: 2;
+}
+.center-text span:first-child { font-family: 'Cormorant Garamond',serif; font-size: 28px; letter-spacing: 6px; color: var(--mid); font-style: italic; }
+.center-text span:last-child { font-size: 9px; letter-spacing: 3px; color: var(--light); margin-top: 6px; text-transform: uppercase; }
+
+/* Stripe pattern */
+.stripe-pattern { background: #2a2a2a; }
+
+/* Dot pattern */
+.dot-pattern { background: #f8f4ef; }
+
+.product-tag {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--dark); color: white;
+  font-size: 10px; letter-spacing: 1px; padding: 4px 10px;
+  border-radius: 50px; font-weight: 400; z-index: 5;
+}
+.product-info { padding: 16px 18px 18px; }
+.product-cat { font-size: 10px; color: var(--light); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.product-name { font-size: 15px; font-weight: 400; color: var(--dark); margin-bottom: 10px; }
+.product-price { display: flex; gap: 8px; align-items: center; }
+.price-now { font-size: 17px; color: var(--dark); font-weight: 500; }
+.price-old { font-size: 13px; color: var(--light); text-decoration: line-through; }
+
+/* ── DETAIL ── */
+.detail-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+@media(max-width:700px){.detail-grid{grid-template-columns:1fr;gap:30px;}.nav-links{display:none;}.checkout-grid{grid-template-columns:1fr;}}
+.detail-main-img { border-radius: var(--r); overflow: hidden; aspect-ratio: 3/4; }
+.detail-main-img .pattern-placeholder, .detail-main-img img { width: 100%; height: 100%; }
+.detail-thumbs { display: flex; gap: 10px; margin-top: 12px; }
+.detail-thumb {
+  width: 70px; height: 88px; border-radius: var(--rs); overflow: hidden;
+  cursor: pointer; border: 2px solid transparent; transition: border-color .2s;
+}
+.detail-thumb.active { border-color: var(--accent); }
+.detail-thumb .pattern-placeholder, .detail-thumb img { width: 100%; height: 100%; }
+.detail-info { padding-top: 12px; }
+.detail-cat { font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+.detail-name { font-family: 'Cormorant Garamond',serif; font-size: 32px; font-weight: 400; line-height: 1.2; margin-bottom: 16px; }
+.detail-prices { display: flex; gap: 12px; align-items: baseline; margin-bottom: 24px; }
+.detail-price-now { font-size: 26px; font-weight: 500; }
+.detail-price-old { font-size: 16px; color: var(--light); text-decoration: line-through; }
+.detail-desc { font-size: 14px; color: var(--mid); line-height: 1.9; margin-bottom: 28px; font-weight: 300; }
+.size-label { font-size: 12px; letter-spacing: 1px; color: var(--mid); margin-bottom: 12px; text-transform: uppercase; }
+.size-options { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+.size-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--blush); background: transparent;
+  font-size: 12px; cursor: pointer; font-family: 'Noto Sans SC',sans-serif;
+  color: var(--mid); transition: all .2s;
+}
+.size-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
+.size-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.qty-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.qty-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--blush); background: transparent;
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--dark); transition: all .2s; font-family: sans-serif;
+}
+.qty-btn:hover { border-color: var(--dark); }
+.qty-num { font-size: 16px; font-weight: 500; min-width: 24px; text-align: center; }
+.btn-add-cart {
+  width: 100%; padding: 16px; background: var(--dark); color: white;
+  border: none; border-radius: 50px; font-size: 14px; letter-spacing: 2px;
+  cursor: pointer; font-family: 'Noto Sans SC',sans-serif; transition: all .25s;
+}
+.btn-add-cart:hover { background: var(--accent); }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
+  color: var(--mid); cursor: pointer; margin-bottom: 32px; letter-spacing: 1px;
+  background: none; border: none; font-family: 'Noto Sans SC',sans-serif; transition: color .2s;
+}
+.back-btn:hover { color: var(--dark); }
+
+/* ── CART ── */
+.cart-wrap { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+.cart-title { font-family: 'Cormorant Garamond',serif; font-size: 36px; font-weight: 400; margin-bottom: 32px; }
+.cart-item {
+  display: grid; grid-template-columns: 90px 1fr auto;
+  gap: 16px; align-items: center;
+  padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,.07);
+}
+.cart-img { width: 90px; height: 110px; border-radius: var(--rs); overflow: hidden; }
+.cart-img .pattern-placeholder, .cart-img img { width: 100%; height: 100%; }
+.cart-item-name { font-size: 15px; margin-bottom: 6px; }
+.cart-item-meta { font-size: 12px; color: var(--light); margin-bottom: 12px; }
+.cart-item-price { font-size: 16px; font-weight: 500; }
+.remove-btn {
+  font-size: 11px; color: var(--light); cursor: pointer; letter-spacing: 1px;
+  text-transform: uppercase; border: none; background: none;
+  font-family: 'Noto Sans SC',sans-serif; transition: color .2s;
+}
+.remove-btn:hover { color: #c0392b; }
+.cart-summary { margin-top: 32px; padding: 28px; background: var(--cream); border-radius: var(--r); }
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--mid); }
+.summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 500; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--blush); }
+.btn-checkout {
+  width: 100%; margin-top: 20px; padding: 16px; background: var(--dark); color: white;
+  border: none; border-radius: 50px; font-size: 14px; letter-spacing: 2px;
+  cursor: pointer; font-family: 'Noto Sans SC',sans-serif; transition: all .25s;
+}
+.btn-checkout:hover { background: var(--accent); }
+.empty-cart { text-align: center; padding: 80px 0; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-cart p { color: var(--mid); margin-bottom: 24px; }
+
+/* ── CHECKOUT ── */
+.checkout-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+.checkout-title { font-family: 'Cormorant Garamond',serif; font-size: 36px; font-weight: 400; margin-bottom: 32px; }
+.checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; }
+.form-section { margin-bottom: 32px; }
+.form-section-title { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--blush); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-full { grid-column: 1/-1; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; letter-spacing: 1px; color: var(--mid); text-transform: uppercase; }
+.form-input {
+  padding: 12px 16px; border: 1.5px solid var(--blush); border-radius: var(--rs);
+  font-size: 14px; font-family: 'Noto Sans SC',sans-serif; color: var(--dark);
+  background: var(--white); outline: none; transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--accent); }
+.payment-options { display: flex; flex-direction: column; gap: 10px; }
+.payment-opt {
+  display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+  border: 1.5px solid var(--blush); border-radius: var(--rs);
+  cursor: pointer; transition: all .2s; font-size: 14px;
+}
+.payment-opt.active { border-color: var(--accent); background: #fdf8f3; }
+.pay-dot {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--blush);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .2s;
+}
+.payment-opt.active .pay-dot { border-color: var(--accent); background: var(--accent); }
+.pay-dot-inner { width: 8px; height: 8px; background: white; border-radius: 50%; display: none; }
+.payment-opt.active .pay-dot-inner { display: block; }
+.order-sum-card { background: var(--cream); border-radius: var(--r); padding: 24px; position: sticky; top: 90px; }
+.order-sum-card-title { font-family: 'Cormorant Garamond',serif; font-size: 20px; margin-bottom: 20px; }
+.order-sum-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--mid); gap: 8px; }
+.order-sum-row span:first-child { flex: 1; }
+.order-sum-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 500; padding-top: 16px; margin-top: 8px; border-top: 1px solid var(--blush); }
+.btn-pay {
+  width: 100%; margin-top: 20px; padding: 16px; background: var(--dark); color: white;
+  border: none; border-radius: 50px; font-size: 14px; letter-spacing: 2px;
+  cursor: pointer; font-family: 'Noto Sans SC',sans-serif; transition: all .25s;
+}
+.btn-pay:hover { background: var(--accent); }
+
+/* ── SUCCESS ── */
+.success-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+.success-card {
+  text-align: center; max-width: 480px;
+  background: var(--cream); border-radius: 28px; padding: 60px 48px;
+  border: 1px solid var(--blush); animation: fadeUp .6s ease both;
+}
+.success-check {
+  width: 72px; height: 72px; background: var(--dark); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;
+}
+.success-check svg { display: block; }
+.success-title { font-family: 'Cormorant Garamond',serif; font-size: 36px; font-weight: 400; margin-bottom: 14px; }
+.success-sub { font-size: 14px; color: var(--mid); line-height: 1.8; margin-bottom: 32px; font-weight: 300; }
+.order-num { display: inline-block; background: white; border: 1px solid var(--blush); border-radius: 50px; padding: 8px 24px; font-size: 13px; color: var(--mid); letter-spacing: 2px; margin-bottom: 32px; }
+.success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-outline {
+  padding: 12px 28px; border: 1.5px solid var(--dark); border-radius: 50px;
+  font-size: 13px; letter-spacing: 1.5px; cursor: pointer;
+  background: transparent; font-family: 'Noto Sans SC',sans-serif; color: var(--dark); transition: all .2s;
+}
+.btn-outline:hover { background: var(--dark); color: white; }
+
+/* ── FOOTER ── */
+footer { background: var(--dark); color: rgba(255,255,255,.45); text-align: center; padding: 32px 24px; font-size: 12px; letter-spacing: 1px; margin-top: 60px; }
+.footer-logo { font-family: 'Cormorant Garamond',serif; font-size: 22px; color: white; letter-spacing: 4px; margin-bottom: 12px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--dark); color: white; padding: 14px 28px; border-radius: 50px;
+  font-size: 13px; letter-spacing: 1px; transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  z-index: 9999; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCEMENT BAR -->
+<div class="ann-bar">✦ 免运费优惠：满 RM 150 免邮全马 ✦ 新品已上架 · 限量发售 ✦</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" onclick="goPage('home')">TDF</a>
+  <div class="nav-links">
+    <button onclick="goPage('home');setFilter('全部')" id="nav-home">首页</button>
+    <button onclick="goPage('home');setFilter('新品')" id="nav-new">新品</button>
+    <button onclick="goPage('home');setFilter('男装')" id="nav-men">男装</button>
+    <button onclick="goPage('home');setFilter('女装')" id="nav-women">女装</button>
+  </div>
+  <div class="nav-right">
+    <button class="cart-icon-btn" onclick="goPage('cart')">
+      <!-- Shopping bag icon -->
+      <svg class="cart-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════ HOME PAGE ══════════════ -->
+<div class="page active" id="page-home">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-blob b1"></div>
+    <div class="hero-blob b2"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">The Daily Fit · 2026 新系列</p>
+      <h1 class="hero-title">穿出<em>你的</em><br>每一天</h1>
+      <p class="hero-sub">简约韩系美学，从晨起到深夜<br>每一件单品，都是你的日常态度</p>
+      <button class="btn-primary" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">浏览新品</button>
+    </div>
+  </section>
+
+  <!-- CATALOG -->
+  <section class="section" id="catalog">
+    <div class="section-header">
+      <span class="section-label">COLLECTION</span>
+      <h2 class="section-title">本季精选</h2>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('全部',this)">全部</button>
+      <button class="filter-tab" onclick="setFilter('新品',this)">新品</button>
+      <button class="filter-tab" onclick="setFilter('男装',this)">男装</button>
+      <button class="filter-tab" onclick="setFilter('女装',this)">女装</button>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+  </section>
+</div>
+
+<!-- ══════════════ DETAIL PAGE ══════════════ -->
+<div class="page" id="page-detail">
+  <div class="detail-wrap">
+    <button class="back-btn" onclick="goPage('home')">← 返回</button>
+    <div class="detail-grid">
+      <div>
+        <div class="detail-main-img" id="detail-main-img"></div>
+        <div class="detail-thumbs" id="detail-thumbs"></div>
+      </div>
+      <div class="detail-info">
+        <div class="detail-cat" id="detail-cat"></div>
+        <h1 class="detail-name" id="detail-name"></h1>
+        <div class="detail-prices">
+          <span class="detail-price-now" id="detail-price-now"></span>
+          <span class="detail-price-old" id="detail-price-old"></span>
+        </div>
+        <p class="detail-desc" id="detail-desc"></p>
+        <div class="size-label">选择尺码</div>
+        <div class="size-options" id="size-options"></div>
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-num" id="qty-num">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="btn-add-cart" onclick="addToCart()">加入购物车</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CART PAGE ══════════════ -->
+<div class="page" id="page-cart">
+  <div class="cart-wrap">
+    <h1 class="cart-title">购物车</h1>
+    <div id="cart-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════ CHECKOUT PAGE ══════════════ -->
+<div class="page" id="page-checkout">
+  <div class="checkout-wrap">
+    <h1 class="checkout-title">填写资料</h1>
+    <div class="checkout-grid">
+      <div>
+        <div class="form-section">
+          <div class="form-section-title">联系信息</div>
+          <div class="form-grid">
+            <div class="form-group form-full">
+              <label class="form-label">姓名</label>
+              <input class="form-input" placeholder="你的姓名" id="f-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">电子邮件</label>
+              <input class="form-input" placeholder="email@example.com" id="f-email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">手机号码</label>
+              <input class="form-input" placeholder="01X-XXXXXXX" id="f-phone">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">送货地址</div>
+          <div class="form-grid">
+            <div class="form-group form-full">
+              <label class="form-label">地址</label>
+              <input class="form-input" placeholder="门牌号、街道名" id="f-addr">
+            </div>
+            <div class="form-group">
+              <label class="form-label">城市</label>
+              <input class="form-input" placeholder="城市" id="f-city">
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮政编码</label>
+              <input class="form-input" placeholder="XXXXX" id="f-post">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">付款方式</div>
+          <div class="payment-options">
+            <div class="payment-opt active" onclick="selectPay(this,'fpx')">
+              <div class="pay-dot"><div class="pay-dot-inner"></div></div>
+              <span>🏦 FPX 网上银行</span>
+            </div>
+            <div class="payment-opt" onclick="selectPay(this,'duitnow')">
+              <div class="pay-dot"><div class="pay-dot-inner"></div></div>
+              <span>📱 DuitNow QR</span>
+            </div>
+            <div class="payment-opt" onclick="selectPay(this,'card')">
+              <div class="pay-dot"><div class="pay-dot-inner"></div></div>
+              <span>💳 信用卡 / 借记卡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="order-sum-card">
+          <div class="order-sum-card-title">订单摘要</div>
+          <div id="checkout-items"></div>
+          <div class="order-sum-row"><span>运费</span><span id="checkout-shipping"></span></div>
+          <div class="order-sum-total"><span>总计</span><span id="checkout-total"></span></div>
+          <button class="btn-pay" onclick="confirmPayment()">确认付款</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUCCESS PAGE ══════════════ -->
+<div class="page" id="page-success">
+  <div class="success-wrap">
+    <div class="success-card">
+      <div class="success-check">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h1 class="success-title">付款成功！</h1>
+      <p class="success-sub">谢谢你的支持 🤍<br>我们将在 1–3 个工作天内为你寄出商品。<br>确认邮件已发送至你的电子邮箱。</p>
+      <div class="order-num" id="order-num"></div>
+      <div class="success-actions">
+        <button class="btn-outline" onclick="goPage('home')">继续购物</button>
+        <button class="btn-primary" onclick="goPage('home')">回到首页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">TDF</div>
+  <p>© 2026 The Daily Fit · All Rights Reserved</p>
+</footer>
+
+<script>
+// ── DATA ──
+const products = [
+  {
+    id:1, name:"复古印花宽松短袖", category:"男装", price:89, originalPrice:129,
+    tag:"热卖", isNew:false,
+    desc:"宽松版型，复古印花设计，采用纯棉材质，穿着舒适透气。适合日常休闲搭配。",
+    sizes:["S","M","L","XL"],
+    pattern:{type:"tee", name:"RECO", sub:"DARK FOREST", bg:"#181818"}
+  },
+  {
+    id:2, name:"白色运动拉链外套", category:"男装", price:159, originalPrice:219,
+    tag:"新品", isNew:true,
+    desc:"韩系运动风拉链外套，轻薄透气，细节撞色设计，百搭实穿。",
+    sizes:["S","M","L","XL"],
+    pattern:{type:"tee", name:"TDF", sub:"SPORT LINE", bg:"#e8e8e8", dark:false}
+  },
+  {
+    id:3, name:"灰色阔腿字母裤", category:"女装", price:119, originalPrice:159,
+    tag:"热卖", isNew:false,
+    desc:"高腰阔腿设计，字母印花点缀，显瘦拉腿，休闲又时尚。",
+    sizes:["XS","S","M","L"],
+    pattern:{type:"text", name:"MOM", sub:"LOOSE FIT", bg:"#d8d6d0"}
+  },
+  {
+    id:4, name:"蕾丝吊带连衣裙", category:"女装", price:139, originalPrice:189,
+    tag:"新品", isNew:true,
+    desc:"精致蕾丝面料，V领吊带设计，优雅又甜美，约会日常皆宜。",
+    sizes:["XS","S","M"],
+    pattern:{type:"lace", name:"LACE", sub:"SOFT SERIES", bg:"#f5f0ea"}
+  },
+  {
+    id:5, name:"奶白色吊带上衣", category:"女装", price:69, originalPrice:99,
+    tag:null, isNew:false,
+    desc:"简洁奶白色吊带背心，百搭基础款，轻盈舒适，可内搭可外穿。",
+    sizes:["XS","S","M","L"],
+    pattern:{type:"minimal", name:"TDF", sub:"BASIC", bg:"#faf6ef"}
+  },
+  {
+    id:6, name:"Polo领黑色短袖", category:"男装", price:99, originalPrice:139,
+    tag:null, isNew:false,
+    desc:"韩系Polo领短袖，品牌刺绣Logo，宽松版型，街头感十足。",
+    sizes:["S","M","L","XL","XXL"],
+    pattern:{type:"tee", name:"TDF", sub:"POLO SERIES", bg:"#141414"}
+  },
+];
+
+// ── STATE ──
+let cart = [];
+let currentProduct = null;
+let currentSize = "";
+let currentQty = 1;
+let currentFilter = "全部";
+
+// ── PATTERN SVGs ──
+function makePattern(p, size="full") {
+  const small = size === "sm";
+  const isLight = p.bg.startsWith('#f') || p.bg.startsWith('#e') || p.bg.startsWith('#d');
+  const textColor = isLight ? 'rgba(80,70,60,0.45)' : 'rgba(255,255,255,0.45)';
+  const subColor = isLight ? 'rgba(80,70,60,0.2)' : 'rgba(255,255,255,0.2)';
+  const patternColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+
+  // Background dots/lines SVG
+  const bgSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40">
+    <circle cx="20" cy="20" r="1" fill="${patternColor}"/>
+    <circle cx="0" cy="0" r="1" fill="${patternColor}"/>
+    <circle cx="40" cy="0" r="1" fill="${patternColor}"/>
+    <circle cx="0" cy="40" r="1" fill="${patternColor}"/>
+    <circle cx="40" cy="40" r="1" fill="${patternColor}"/>
+  </svg>`;
+  const bgEncoded = 'data:image/svg+xml;base64,' + btoa(bgSvg);
+
+  // T-shirt silhouette path
+  const teeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <path d="M60,20 L10,55 L35,70 L35,180 L165,180 L165,70 L190,55 L140,20 L120,35 Q100,50 80,35 Z"
+      fill="${isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.08)'}" stroke="${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.12)'}" stroke-width="1"/>
+    <line x1="100" y1="20" x2="100" y2="50" stroke="${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'}" stroke-width="1"/>
+  </svg>`;
+
+  const teeSize = small ? '55%' : '62%';
+  const nameSize = small ? '9px' : (p.name.length > 3 ? '11px' : '13px');
+  const subSize = small ? '7px' : '9px';
+  const nameSp = small ? '3px' : '5px';
+  const subSp = small ? '2px' : '3px';
+
+  return `
+    <div class="pattern-placeholder" style="background:${p.bg};position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background-image:url('${bgEncoded}');background-size:40px 40px;"></div>
+      ${p.type==='tee' ? `
+        <div style="width:${teeSize};position:relative;z-index:2;">${teeSvg}</div>
+      ` : p.type==='lace' ? `
+        <div style="position:absolute;inset:0;opacity:.18;background-image:repeating-linear-gradient(0deg,${isLight?'rgba(0,0,0,1)':'rgba(255,255,255,1)'} 0,${isLight?'rgba(0,0,0,1)':'rgba(255,255,255,1)'} 1px,transparent 1px,transparent 8px),repeating-linear-gradient(90deg,${isLight?'rgba(0,0,0,1)':'rgba(255,255,255,1)'} 0,${isLight?'rgba(0,0,0,1)':'rgba(255,255,255,1)'} 1px,transparent 1px,transparent 8px);"></div>
+      ` : ''}
+      <div style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);text-align:center;z-index:3;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:${nameSize};letter-spacing:${nameSp};color:${textColor};display:block;font-weight:400;">${p.name}</span>
+        <span style="font-size:${subSize};letter-spacing:${subSp};color:${subColor};display:block;margin-top:3px;font-family:'Noto Sans SC',sans-serif;font-weight:300;">${p.sub}</span>
+      </div>
+    </div>`;
+}
+
+// ── RENDER PRODUCTS ──
+function renderProducts(filter) {
+  const grid = document.getElementById('product-grid');
+  const list = filter === '全部' ? products
+    : filter === '新品' ? products.filter(p=>p.isNew||p.tag==='新品')
+    : products.filter(p=>p.category===filter);
+
+  grid.innerHTML = list.map(p=>`
+    <div class="product-card" onclick="openProduct(${p.id})">
+      <div class="product-img-wrap" style="position:relative;">
+        ${makePattern(p.pattern)}
+        ${p.tag ? `<span class="product-tag">${p.tag}</span>` : ''}
+      </div>
+      <div class="product-info">
+        <div class="product-cat">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">
+          <span class="price-now">RM ${p.price}</span>
+          <span class="price-old">RM ${p.originalPrice}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderProducts(f);
+  // Also update nav active state
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  if(f==='全部') document.getElementById('nav-home').classList.add('active');
+  else if(f==='新品') document.getElementById('nav-new').classList.add('active');
+  else if(f==='男装') document.getElementById('nav-men').classList.add('active');
+  else if(f==='女装') document.getElementById('nav-women').classList.add('active');
+}
+
+// ── OPEN PRODUCT DETAIL ──
+function openProduct(id) {
+  currentProduct = products.find(p=>p.id===id);
+  currentSize = "";
+  currentQty = 1;
+
+  document.getElementById('detail-cat').textContent = currentProduct.category;
+  document.getElementById('detail-name').textContent = currentProduct.name;
+  document.getElementById('detail-price-now').textContent = `RM ${currentProduct.price}`;
+  document.getElementById('detail-price-old').textContent = `RM ${currentProduct.originalPrice}`;
+  document.getElementById('detail-desc').textContent = currentProduct.desc;
+  document.getElementById('qty-num').textContent = 1;
+
+  // Main image
+  document.getElementById('detail-main-img').innerHTML = makePattern(currentProduct.pattern);
+
+  // Thumbs (show 2 thumbs as example — both same pattern with slight variation)
+  const thumbs = document.getElementById('detail-thumbs');
+  thumbs.innerHTML = [0,1].map((i)=>`
+    <div class="detail-thumb ${i===0?'active':''}" onclick="selectThumb(this,${i})">
+      ${makePattern(currentProduct.pattern,'sm')}
+    </div>`).join('');
+
+  // Sizes
+  const so = document.getElementById('size-options');
+  so.innerHTML = currentProduct.sizes.map(s=>`
+    <button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`).join('');
+
+  goPage('detail');
+}
+
+function selectThumb(el, idx) {
+  document.querySelectorAll('.detail-thumb').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectSize(el, s) {
+  currentSize = s;
+  document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function changeQty(d) {
+  currentQty = Math.max(1, currentQty + d);
+  document.getElementById('qty-num').textContent = currentQty;
+}
+
+function addToCart() {
+  if(!currentSize){ showToast("请先选择尺码"); return; }
+  const existing = cart.find(i=>i.id===currentProduct.id && i.size===currentSize);
+  if(existing) existing.qty += currentQty;
+  else cart.push({...currentProduct, size:currentSize, qty:currentQty});
+  updateCartBadge();
+  showToast("已加入购物车 ✓");
+  goPage('home');
+}
+
+// ── CART ──
+function renderCart() {
+  const el = document.getElementById('cart-content');
+  if(cart.length===0){
+    el.innerHTML=`<div class="empty-cart"><div class="empty-icon">🛍️</div><p>你的购物车是空的</p><button class="btn-primary" onclick="goPage('home')">继续购物</button></div>`;
+    return;
+  }
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = total>=150?0:10;
+  el.innerHTML = cart.map(item=>`
+    <div class="cart-item">
+      <div class="cart-img">${makePattern(item.pattern,'sm')}</div>
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">尺码：${item.size} · 数量：${item.qty}</div>
+        <button class="remove-btn" onclick="removeFromCart(${item.id},'${item.size}')">移除</button>
+      </div>
+      <div class="cart-item-price">RM ${item.price*item.qty}</div>
+    </div>`).join('') + `
+    <div class="cart-summary">
+      <div class="summary-row"><span>小计</span><span>RM ${total}</span></div>
+      <div class="summary-row"><span>运费</span><span>${shipping===0?'免运费':'RM '+shipping}</span></div>
+      <div class="summary-total"><span>总计</span><span>RM ${total+shipping}</span></div>
+      <button class="btn-checkout" onclick="goPage('checkout');renderCheckout()">前往结账</button>
+    </div>`;
+}
+
+function removeFromCart(id,size) {
+  cart = cart.filter(i=>!(i.id===id&&i.size===size));
+  updateCartBadge();
+  renderCart();
+}
+
+function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  if(count>0){ badge.style.display='flex'; badge.textContent=count; }
+  else badge.style.display='none';
+}
+
+// ── CHECKOUT ──
+function renderCheckout() {
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = total>=150?0:10;
+  document.getElementById('checkout-items').innerHTML = cart.map(i=>`
+    <div class="order-sum-row"><span>${i.name} (${i.size}) ×${i.qty}</span><span>RM ${i.price*i.qty}</span></div>`).join('');
+  document.getElementById('checkout-shipping').textContent = shipping===0?'免费':'RM '+shipping;
+  document.getElementById('checkout-total').textContent = 'RM '+(total+shipping);
+}
+
+function selectPay(el) {
+  document.querySelectorAll('.payment-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function confirmPayment() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const addr = document.getElementById('f-addr').value.trim();
+  if(!name||!email||!addr){ showToast("请填写必填资料"); return; }
+  cart = [];
+  updateCartBadge();
+  const orderNum = 'TDF-' + Math.floor(Math.random()*90000+10000);
+  document.getElementById('order-num').textContent = '订单编号：' + orderNum;
+  goPage('success');
+}
+
+// ── PAGE NAV ──
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(id==='cart') renderCart();
+  if(id==='checkout') renderCheckout();
+
+  // update nav active
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  if(id==='home') document.getElementById('nav-home').classList.add('active');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderProducts('全部');
+document.getElementById('nav-home').classList.add('active');
+</script>
+</body>
+</html>
